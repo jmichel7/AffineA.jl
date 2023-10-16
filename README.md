@@ -1,11 +1,17 @@
 
-<a id='Combinat'></a>
+<a id='AffineA'></a>
 
-<a id='Combinat-1'></a>
+<a id='AffineA-1'></a>
 
-# Combinat
+# AffineA
 
-- [Combinat](index.md#Combinat)
+- [`AffineA`](index.md#AffineA)
+- [`AffineA.Atilde`](index.md#AffineA.Atilde)
+- [`AffineA.PPerm`](index.md#AffineA.PPerm)
+- [`AffineA.PPerm`](index.md#AffineA.PPerm-Tuple{Integer, Vararg{Any}})
+- [`Gapjm.Garside.DualBraidMonoid`](index.md#Gapjm.Garside.DualBraidMonoid-Tuple{Atilde})
+- [`Gapjm.PermRoot.refls`](index.md#Gapjm.PermRoot.refls-Tuple{Atilde, Integer})
+- [`PermGroups.Perms.cycles`](index.md#PermGroups.Perms.cycles-Tuple{PPerm})
 
 <a id='AffineA' href='#AffineA'>#</a>
 **`AffineA`** &mdash; *Module*.
@@ -57,7 +63,7 @@ julia> mod1.([-1, 1, 6],3) # the image in 𝔖₃
  3
 
 julia> l[6] # printed as cycles with shift -1 and 1 (sum 0). 2₋₁ is 2-3
-(1,2₋₁)₋₁(3)₁
+PPerm(3): (1,2₋₁)₋₁(3)₁
 
 julia> B=DualBraidMonoid(W) # The Coxeter element is W(1,2,3)
 DualBraidMonoid(Atilde(3),c=[1, 2, 3])
@@ -81,7 +87,7 @@ julia> refls(W,2:5) # the corresponding reflections
 ```
 
 
-<a target='_blank' href='https://github.com/jmichel7/AffineA.jl/blob/d4ec62f8b104454988cfaa79511c71f2c7da96d4/src/AffineA.jl#L1-L70' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/jmichel7/AffineA.jl/blob/84f7a46fa783213ee5502dd95fa4f334df924780/src/AffineA.jl#L1-L70' class='documenter-source'>source</a><br>
 
 <a id='AffineA.PPerm' href='#AffineA.PPerm'>#</a>
 **`AffineA.PPerm`** &mdash; *Type*.
@@ -97,7 +103,7 @@ a `PPerm` represents a shiftless periodic permutation `f` of the integers
 it is represented in field `d` as the `Vector` `[f(1),…,f(n)]`. The default constructor  takes a  vector of  integers, and  checks its  validity if the keyword `check=true` is given.
 
 
-<a target='_blank' href='https://github.com/jmichel7/AffineA.jl/blob/d4ec62f8b104454988cfaa79511c71f2c7da96d4/src/AffineA.jl#L75-L84' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/jmichel7/AffineA.jl/blob/84f7a46fa783213ee5502dd95fa4f334df924780/src/AffineA.jl#L75-L84' class='documenter-source'>source</a><br>
 
 <a id='AffineA.PPerm-Tuple{Integer, Vararg{Any}}' href='#AffineA.PPerm-Tuple{Integer, Vararg{Any}}'>#</a>
 **`AffineA.PPerm`** &mdash; *Method*.
@@ -114,14 +120,14 @@ The cycles must be disjoint `mod. n`. The argument is tested for validity if `ch
 
 ```julia-repl
 julia> PPerm([-1,1,6])
-(1,2₋₁)₋₁(3)₁
+PPerm(3): (1,2₋₁)₋₁(3)₁
 
 julia> PPerm(3,(1,2=>-1)=>-1,3=>1)
-(1,2₋₁)₋₁(3)₁
+PPerm(3): (1,2₋₁)₋₁(3)₁
 ```
 
 
-<a target='_blank' href='https://github.com/jmichel7/AffineA.jl/blob/d4ec62f8b104454988cfaa79511c71f2c7da96d4/src/AffineA.jl#L107-L127' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/jmichel7/AffineA.jl/blob/84f7a46fa783213ee5502dd95fa4f334df924780/src/AffineA.jl#L107-L127' class='documenter-source'>source</a><br>
 
 <a id='PermGroups.Perms.cycles-Tuple{PPerm}' href='#PermGroups.Perms.cycles-Tuple{PPerm}'>#</a>
 **`PermGroups.Perms.cycles`** &mdash; *Method*.
@@ -140,7 +146,7 @@ julia> cycles(PPerm([-1,1,6]))
 ```
 
 
-<a target='_blank' href='https://github.com/jmichel7/AffineA.jl/blob/d4ec62f8b104454988cfaa79511c71f2c7da96d4/src/AffineA.jl#L203-L216' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/jmichel7/AffineA.jl/blob/84f7a46fa783213ee5502dd95fa4f334df924780/src/AffineA.jl#L203-L216' class='documenter-source'>source</a><br>
 
 <a id='Gapjm.PermRoot.refls-Tuple{Atilde, Integer}' href='#Gapjm.PermRoot.refls-Tuple{Atilde, Integer}'>#</a>
 **`Gapjm.PermRoot.refls`** &mdash; *Method*.
@@ -152,7 +158,7 @@ julia> cycles(PPerm([-1,1,6]))
 returns  the `i`-th reflection of  `W`. Reflections `(a,bⱼ)` are enumerated by  lexicographical order  of `(j,a,b-a)`  with `j`  positive; however when `a>b`  this reflection  is printed  `(b,a₋ⱼ)`. `i`  can also be a `Vector`; then the corresponding list of reflections is returned.
 
 
-<a target='_blank' href='https://github.com/jmichel7/AffineA.jl/blob/d4ec62f8b104454988cfaa79511c71f2c7da96d4/src/AffineA.jl#L346-L353' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/jmichel7/AffineA.jl/blob/84f7a46fa783213ee5502dd95fa4f334df924780/src/AffineA.jl#L358-L365' class='documenter-source'>source</a><br>
 
 <a id='AffineA.Atilde' href='#AffineA.Atilde'>#</a>
 **`AffineA.Atilde`** &mdash; *Type*.
@@ -162,7 +168,7 @@ returns  the `i`-th reflection of  `W`. Reflections `(a,bⱼ)` are enumerated by
 `Atilde(n::Integer)` returns `W(Ãₙ₋₁)` as a group of `PPerm` of period `n`.
 
 
-<a target='_blank' href='https://github.com/jmichel7/AffineA.jl/blob/d4ec62f8b104454988cfaa79511c71f2c7da96d4/src/AffineA.jl#L380-L382' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/jmichel7/AffineA.jl/blob/84f7a46fa783213ee5502dd95fa4f334df924780/src/AffineA.jl#L392-L394' class='documenter-source'>source</a><br>
 
 <a id='Gapjm.Garside.DualBraidMonoid-Tuple{Atilde}' href='#Gapjm.Garside.DualBraidMonoid-Tuple{Atilde}'>#</a>
 **`Gapjm.Garside.DualBraidMonoid`** &mdash; *Method*.
@@ -174,5 +180,5 @@ returns  the `i`-th reflection of  `W`. Reflections `(a,bⱼ)` are enumerated by
 If  `W=Atilde(n)`, constructs  the dual  braid monoid  for `Ãₙ₋₁`  and the Coxeter element `PPerm([1-n;3:n;2+n])`
 
 
-<a target='_blank' href='https://github.com/jmichel7/AffineA.jl/blob/d4ec62f8b104454988cfaa79511c71f2c7da96d4/src/AffineA.jl#L409-L414' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/jmichel7/AffineA.jl/blob/84f7a46fa783213ee5502dd95fa4f334df924780/src/AffineA.jl#L421-L426' class='documenter-source'>source</a><br>
 

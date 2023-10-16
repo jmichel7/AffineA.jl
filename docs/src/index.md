@@ -1,8 +1,7 @@
-# Combinat
-```@contents
-Depth=3
+# AffineA
+```@index
+Pages=["index.md"]
 ```
-
 ```@docs
 AffineA
 PPerm

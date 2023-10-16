@@ -47,7 +47,7 @@ julia> mod1.([-1, 1, 6],3) # the image in 𝔖₃
  3
 
 julia> l[6] # printed as cycles with shift -1 and 1 (sum 0). 2₋₁ is 2-3
-(1,2₋₁)₋₁(3)₁
+PPerm(3): (1,2₋₁)₋₁(3)₁
 
 julia> B=DualBraidMonoid(W) # The Coxeter element is W(1,2,3)
 DualBraidMonoid(Atilde(3),c=[1, 2, 3])
@@ -84,7 +84,7 @@ keyword `check=true` is given.
 """
 struct PPerm
   d::Vector{Int16}
-  function PPerm(d::AbstractVector{<:Integer};check=false)
+  function PPerm(d::AbstractVector{<:Integer};check=true)
     if check validate(d) end
     new(convert(Vector{Int16},d))
   end
@@ -97,9 +97,9 @@ function validate(d)
   if sum(d)!=sum(1:n) error(d,": sum of shifts is ",sum(d)-sum(1:n)," must be 0") end
 end
 
-Base.one(p::PPerm)=PPerm(1:length(p.d))
+Base.one(p::PPerm)=PPerm(1:length(p.d);check=false)
 Base.isone(p::PPerm)=p.d==eachindex(p.d)
-Base.copy(p::PPerm)=PPerm(copy(p.d))
+Base.copy(p::PPerm)=PPerm(copy(p.d);check=false)
 Base.broadcastable(p::PPerm)=Ref(p)
 
 perm(a::PPerm)=mod1.(a.d,length(a.d))
@@ -119,14 +119,14 @@ The cycles must be disjoint `mod. n`. The argument is tested for validity if
 
 ```julia-repl
 julia> PPerm([-1,1,6])
-(1,2₋₁)₋₁(3)₁
+PPerm(3): (1,2₋₁)₋₁(3)₁
 
 julia> PPerm(3,(1,2=>-1)=>-1,3=>1)
-(1,2₋₁)₋₁(3)₁
+PPerm(3): (1,2₋₁)₋₁(3)₁
 ```
 """
 function PPerm(n::Integer,cc...;check=true)
-  if isempty(cc) return PPerm(1:n) end
+  if isempty(cc) return PPerm(1:n;check=false) end
   cc=map(cc) do cyc
     c=if cyc isa Int 
       ((cyc,),0)
@@ -146,7 +146,7 @@ function PPerm(n::Integer,cc...;check=true)
     end=>c[2]
   end
   if check
-  u=collect(Iterators.flatten(map(x->mod.(x[1],n),cc)))
+    u=collect(Iterators.flatten(map(x->mod.(x[1],n),cc)))
     if length(unique(u))!=length(u)
       error(cc," : the cycles must be disjoint mod ",n)
     end
@@ -158,7 +158,7 @@ function PPerm(n::Integer,cc...;check=true)
       perm[k]=cyc[mod1(i+1,length(cyc))]+k-cyc[i]
     end
     perm[mod1(cyc[end],n)]+=d*n
-    PPerm(perm)
+    PPerm(perm;check=false)
   end
   if check validate(p.d) end
   p
@@ -171,14 +171,14 @@ function Base.:*(x::PPerm,y::PPerm)
     u=mod1(y.d[i],n)
     res[i]=x.d[u]+y.d[i]-u
   end
-  PPerm(res)
+  PPerm(res;check=false)
 end
 
 function Base.inv(x::PPerm)
   n=length(x.d)
   l=perm(x)
   ll=invperm(l)
-  PPerm(ll.-@view (x.d.-l)[ll])
+  PPerm(ll.-@view (x.d.-l)[ll];check=false)
 end
 
 function Base.:^(i::Int,p::PPerm)
@@ -235,16 +235,28 @@ function Perms.cycles(a::PPerm;trivial=false)
   res
 end    
 
+function Base.show(io::IO, ::MIME"text/plain", a::PPerm)
+  if !haskey(io,:typeinfo) print(io,"PPerm(",length(a.d),"): ") end
+  show(io,a)
+end
+
 function Base.show(io::IO,a::PPerm)
   n=length(a.d)
-  function stringdec(d)
+  TeX=get(io,:TeX,false)
+  function stringshift(d)
     if get(io,:sgn,false)
-      d>0 ? "₊"^d : "₋"^(-d)
+      if TeX 
+        if d==0 return "" end
+        res=d>0 ? "+"^d : "-"^(-d)
+        if abs(d)>1 res="{"*res*"}" end
+        "_"*res
+      else d>0 ? "₊"^d : "₋"^(-d)
+      end
     else
       d==0 ? "" : stringind(io,d)
     end
   end
-  if !get(io,:limit,false) && !get(io,:TeX,false) 
+  if !get(io,:limit,false) && !TeX
     print(io,"PPerm(",a.d,")");return
   end
   c=cycles(a)
@@ -254,9 +266,9 @@ function Base.show(io::IO,a::PPerm)
       cyc,d=cc
       print(io,"(",join(map(cyc)do y
         x=mod1(y,n)
-        string(x,stringdec(div(y-x,n)))
+        string(x,stringshift(div(y-x,n)))
       end,","),")")
-      print(io,stringdec(d))
+      print(io,stringshift(d))
     end
   end
 end
@@ -296,7 +308,7 @@ function refword(w::PPerm)
     d=1
     while true
       for i in 1:n
-        s=PPerm(n,(i,i+d))
+        s=PPerm(n,(i,i+d);check=false)
         if reflength(s*w)<l return s end
       end
       d+=1
@@ -326,10 +338,10 @@ function dualleftdescents(a::PPerm)
     if x[1]!=1 || length(x)!=1
       for j in 1:length(x)
         for k in j+1:length(x)
-          push!(res[1],PPerm(n,(x[j],x[k])))
-          if d!=0 push!(res[1],PPerm(n,(x[j]+n,x[k]))) end
+          push!(res[1],PPerm(n,(x[j],x[k]);check=false))
+          if d!=0 push!(res[1],PPerm(n,(x[j]+n,x[k]);check=false)) end
         end
-        if d!=0 push!(res[2],PPerm(n,(1,mod1(x[j],n)))) end
+        if d!=0 push!(res[2],PPerm(n,(1,mod1(x[j],n));check=false)) end
       end
     end
   end
@@ -359,7 +371,7 @@ function PermRoot.refls(W::Atilde,i::Integer)
   res[1+pos]=2+pos+ecart+p*n
   u=mod1(res[1+pos],n)
   res[u]=u-1-ecart-p*n
-  PPerm(res)
+  PPerm(res;check=false)
 end
 
 # finds i such that pp=refls(W,i). It is assumed that pp is a reflection.
@@ -382,8 +394,8 @@ Base.show(io::IO,G::Atilde)=print(io,"Atilde(",ngens(G),")")
 """
 function Atilde(n::Integer)
   if n<2 error(n," should be >=2") end
-  gens=map(i->PPerm(n,(i,i+1)),1:n-1)
-  push!(gens,PPerm([0;2:n-1;n+1]))
+  gens=map(i->PPerm(n,(i,i+1);check=false),1:n-1)
+  push!(gens,PPerm([0;2:n-1;n+1];check=false))
   Atilde(gens,Dict{Symbol,Any}())
 end
 
@@ -412,7 +424,7 @@ Garside.IntervalStyle(M::AffaDualBraidMonoid)=Garside.Interval()
 If  `W=Atilde(n)`, constructs  the dual  braid monoid  for `Ãₙ₋₁`  and the
 Coxeter element `PPerm([1-n;3:n;2+n])`
 """
-function Garside.DualBraidMonoid(W::Atilde;c=(n=ngens(W);PPerm([1-n;3:n;2+n])),
+function Garside.DualBraidMonoid(W::Atilde;c=(n=ngens(W);PPerm([1-n;3:n;2+n];check=false)),
   revMonoid=nothing)
 # If revMonoid is given, constructs the reversed monoid
 # which allows to fill the field M.revMonoid after building the dual monoid
