@@ -19,6 +19,26 @@ This package implements:
 ©  2007 François Digne for the  mathematics, François Digne and Jean Michel
 for the code.
 
+### Installing
+
+To install this package, at the Julia command line:
+
+  *  enter package mode with ]
+  *  do the command
+```
+(@v1.7) pkg> add "https://github.com/jmichel7/AffineA.jl"
+```
+- exit package mode with backspace and then do
+```
+julia> using Gapjm, AffineA
+```
+and you are set up.
+
+To update later to the latest version, do
+
+```
+(@v1.7) pkg> update AffineA
+```
 An example:
 ```julia-repl
 julia> W=coxPPerm(3) # The group Ã₂ as periodic permutations of period 3.
@@ -423,11 +443,11 @@ Garside.IntervalStyle(M::AffaDualBraidMonoid)=Garside.Interval()
 """
 `DualBraidMonoid(W)`
 
-If  `W=coxeter_PPerm_group(n)`, constructs  the dual  braid monoid  for `Ãₙ₋₁`  and the
-Coxeter  element `c=PPerm([1-n;3:n;2+n])`.  If `M=DualBraidMonoid(W)`, used
-as  a function, `M(w)` returns  an element of the  dual braid monoid if `w`
-returns  an element of  of the dual  monoid if `w`  belongs to the interval
-`[1,c]`, and `nothing` otherwise.
+If `W=coxeter_PPerm_group(n)`, constructs the dual braid monoid for `Ãₙ₋₁`
+and the Coxeter element `c=PPerm([1-n;3:n;2+n])`. If
+`M=DualBraidMonoid(W)`,  used as a  function, `M(w)` returns  an element of
+the dual braid monoid if `w` belongs to the interval `[1,c]`, and `nothing`
+otherwise.
 ```julia-repl
 julia> W=coxPPerm(3);l=elements(W,3)
 9-element Vector{PPerm}:

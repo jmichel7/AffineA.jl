@@ -6,8 +6,8 @@
 # AffineA
 
 - [`AffineA`](index.md#AffineA)
-- [`AffineA.PPerm`](index.md#AffineA.PPerm-Tuple{Integer, Vararg{Any}})
 - [`AffineA.PPerm`](index.md#AffineA.PPerm)
+- [`AffineA.PPerm`](index.md#AffineA.PPerm-Tuple{Integer, Vararg{Any}})
 - [`Gapjm.Garside.DualBraidMonoid`](index.md#Gapjm.Garside.DualBraidMonoid-Tuple{AffineA.Atilde})
 - [`AffineA.coxeter_PPerm_group`](index.md#AffineA.coxeter_PPerm_group)
 - [`Gapjm.PermRoot.refls`](index.md#Gapjm.PermRoot.refls-Tuple{AffineA.Atilde, Integer})
@@ -30,6 +30,31 @@ It is based on the papers
   * [Shi] The Kazhdan-Lusztig cells in certain affine Weyl groups  Springer LNM 1179 (1986)
 
 ©  2007 François Digne for the  mathematics, François Digne and Jean Michel for the code.
+
+**Installing**
+
+To install this package, at the Julia command line:
+
+  * enter package mode with ]
+  * do the command
+
+```
+(@v1.7) pkg> add "https://github.com/jmichel7/AffineA.jl"
+```
+
+  * exit package mode with backspace and then do
+
+```
+julia> using Gapjm, AffineA
+```
+
+and you are set up.
+
+To update later to the latest version, do
+
+```
+(@v1.7) pkg> update AffineA
+```
 
 An example:
 
@@ -87,7 +112,7 @@ julia> refls(W,2:5) # the corresponding reflections
 ```
 
 
-<a target='_blank' href='https://github.com/jmichel7/AffineA.jl/blob/f8c456a6918e65b731e104eadfe8726621ef54ae/src/AffineA.jl#L1-L71' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/jmichel7/AffineA.jl/blob/655ed984862693d2ce79e3611fbfa81e9afc33a9/src/AffineA.jl#L1-L91' class='documenter-source'>source</a><br>
 
 <a id='AffineA.PPerm' href='#AffineA.PPerm'>#</a>
 **`AffineA.PPerm`** &mdash; *Type*.
@@ -103,7 +128,7 @@ a `PPerm` represents a shiftless periodic permutation `f` of the integers
 it is represented in field `d` as the `Vector` `[f(1),…,f(n)]`. The default constructor  takes a  vector of  integers, and  checks its  validity if the keyword `check=true` is given.
 
 
-<a target='_blank' href='https://github.com/jmichel7/AffineA.jl/blob/f8c456a6918e65b731e104eadfe8726621ef54ae/src/AffineA.jl#L76-L85' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/jmichel7/AffineA.jl/blob/655ed984862693d2ce79e3611fbfa81e9afc33a9/src/AffineA.jl#L96-L105' class='documenter-source'>source</a><br>
 
 <a id='AffineA.PPerm-Tuple{Integer, Vararg{Any}}' href='#AffineA.PPerm-Tuple{Integer, Vararg{Any}}'>#</a>
 **`AffineA.PPerm`** &mdash; *Method*.
@@ -130,7 +155,7 @@ PPerm(3): (1,2₋₁)₋₁(3)₁
 ```
 
 
-<a target='_blank' href='https://github.com/jmichel7/AffineA.jl/blob/f8c456a6918e65b731e104eadfe8726621ef54ae/src/AffineA.jl#L108-L131' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/jmichel7/AffineA.jl/blob/655ed984862693d2ce79e3611fbfa81e9afc33a9/src/AffineA.jl#L128-L151' class='documenter-source'>source</a><br>
 
 <a id='PermGroups.Perms.cycles-Tuple{PPerm}' href='#PermGroups.Perms.cycles-Tuple{PPerm}'>#</a>
 **`PermGroups.Perms.cycles`** &mdash; *Method*.
@@ -149,7 +174,7 @@ julia> cycles(PPerm([-1,1,6]))
 ```
 
 
-<a target='_blank' href='https://github.com/jmichel7/AffineA.jl/blob/f8c456a6918e65b731e104eadfe8726621ef54ae/src/AffineA.jl#L207-L220' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/jmichel7/AffineA.jl/blob/655ed984862693d2ce79e3611fbfa81e9afc33a9/src/AffineA.jl#L227-L240' class='documenter-source'>source</a><br>
 
 <a id='AffineA.coxeter_PPerm_group' href='#AffineA.coxeter_PPerm_group'>#</a>
 **`AffineA.coxeter_PPerm_group`** &mdash; *Function*.
@@ -159,7 +184,7 @@ julia> cycles(PPerm([-1,1,6]))
 `coxeter_PPerm_group(n::Integer)` returns `W(Ãₙ₋₁)` as a group of `PPerm` of period `n`.
 
 
-<a target='_blank' href='https://github.com/jmichel7/AffineA.jl/blob/f8c456a6918e65b731e104eadfe8726621ef54ae/src/AffineA.jl#L392-L394' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/jmichel7/AffineA.jl/blob/655ed984862693d2ce79e3611fbfa81e9afc33a9/src/AffineA.jl#L412-L414' class='documenter-source'>source</a><br>
 
 <a id='Gapjm.PermRoot.refls-Tuple{AffineA.Atilde, Integer}' href='#Gapjm.PermRoot.refls-Tuple{AffineA.Atilde, Integer}'>#</a>
 **`Gapjm.PermRoot.refls`** &mdash; *Method*.
@@ -171,7 +196,7 @@ julia> cycles(PPerm([-1,1,6]))
 returns  the `i`-th reflection of  `W`. Reflections `(a,bⱼ)` are enumerated by  lexicographical order of `(j,a,b-a)` with `j` nonnegative; however when `a>b`  this reflection  is printed  `(b,a₋ⱼ)`. `i`  can also be a `Vector`; then the corresponding list of reflections is returned.
 
 
-<a target='_blank' href='https://github.com/jmichel7/AffineA.jl/blob/f8c456a6918e65b731e104eadfe8726621ef54ae/src/AffineA.jl#L358-L365' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/jmichel7/AffineA.jl/blob/655ed984862693d2ce79e3611fbfa81e9afc33a9/src/AffineA.jl#L378-L385' class='documenter-source'>source</a><br>
 
 <a id='Gapjm.Garside.DualBraidMonoid-Tuple{AffineA.Atilde}' href='#Gapjm.Garside.DualBraidMonoid-Tuple{AffineA.Atilde}'>#</a>
 **`Gapjm.Garside.DualBraidMonoid`** &mdash; *Method*.
@@ -180,7 +205,7 @@ returns  the `i`-th reflection of  `W`. Reflections `(a,bⱼ)` are enumerated by
 
 `DualBraidMonoid(W)`
 
-If  `W=coxeter_PPerm_group(n)`, constructs  the dual  braid monoid  for `Ãₙ₋₁`  and the Coxeter  element `c=PPerm([1-n;3:n;2+n])`.  If `M=DualBraidMonoid(W)`, used as  a function, `M(w)` returns  an element of the  dual braid monoid if `w` returns  an element of  of the dual  monoid if `w`  belongs to the interval `[1,c]`, and `nothing` otherwise.
+If `W=coxeter_PPerm_group(n)`, constructs the dual braid monoid for `Ãₙ₋₁` and the Coxeter element `c=PPerm([1-n;3:n;2+n])`. If `M=DualBraidMonoid(W)`,  used as a  function, `M(w)` returns  an element of the dual braid monoid if `w` belongs to the interval `[1,c]`, and `nothing` otherwise.
 
 ```julia-repl
 julia> W=coxPPerm(3);l=elements(W,3)
@@ -209,5 +234,5 @@ julia> B=DualBraidMonoid(W);B.(l)
 ```
 
 
-<a target='_blank' href='https://github.com/jmichel7/AffineA.jl/blob/f8c456a6918e65b731e104eadfe8726621ef54ae/src/AffineA.jl#L423-L456' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/jmichel7/AffineA.jl/blob/655ed984862693d2ce79e3611fbfa81e9afc33a9/src/AffineA.jl#L443-L476' class='documenter-source'>source</a><br>
 
