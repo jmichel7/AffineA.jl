@@ -7,7 +7,7 @@ AffineA
 PPerm
 PPerm(::Integer,cc...)
 cycles(::PPerm)
-refls(::Atilde,::Integer)
-Atilde
-DualBraidMonoid(::Atilde)
+coxeter_PPerm_group
+refls(::AffineA.Atilde,::Integer)
+DualBraidMonoid(::AffineA.Atilde)
 ```
