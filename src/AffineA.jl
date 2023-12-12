@@ -30,7 +30,7 @@ To install this package, at the Julia command line:
 ```
 - exit package mode with backspace and then do
 ```
-julia> using Gapjm, AffineA
+julia> using Chevie, AffineA
 ```
 and you are set up.
 
@@ -90,7 +90,7 @@ julia> refls(W,2:5) # the corresponding reflections
 ```
 """
 module AffineA
-using Gapjm
+using Chevie
 export PPerm, coxeter_PPerm_group, coxPPerm
 
 """
