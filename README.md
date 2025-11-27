@@ -1,10 +1,9 @@
 # AffineA
 Periodic permutations, Coxeter group `Ãₙ` and its dual braid monoid.
 
-This package implements:
-  - the periodic permutations of the integers.
-  - the Coxeter group of type `Ãₙ₋₁` as a group of periodic permutations of period `n`.
-  - the function dual braid monoid  for such groups.
+This  package  implements  the  periodic  permutations of the integers, the
+Coxeter group of type `Ãₙ₋₁` as a group of periodic permutations of period
+`n`, and the function dual braid monoid for such groups.
 
 ### Installing
 To install this package, start Julia, enter package mode with ], and then do
@@ -15,9 +14,7 @@ exit package mode with backspace and then do
 ```
 julia> using Chevie, AffineA
 ```
-and you are set up.
-
-To update later to the latest version, do
+and you are set up. To update later to the latest version, do
 ```
 (@v1.12) pkg> update AffineA
 ```
