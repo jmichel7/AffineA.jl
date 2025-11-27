@@ -1,43 +1,31 @@
 """
 This package implements:
-
-  - the type `PPerm`, periodic permutations of the integers.
-
-  - the  function  `coxeter_PPerm_group(n)`  (or `coxPPerm(n)`), the Coxeter
-    group `Ãₙ₋₁` as a group of `PPerm` of period `n`.
-
-  - the function `DualBraidMonoid` for such groups.
-
+  - the type [`PPerm`](@ref), the periodic permutations of the integers.
+  - the  function  [`coxeter_PPerm_group`](@ref)`(n)`  (or `coxPPerm(n)`), the
+    Coxeter group of type `Ãₙ₋₁`, as a group of `PPerm`s of period `n`.
+  - the function [`DualBraidMonoid`](@ref) for such groups.
  It is based on the papers
-
   - [Digne, F.] "Presentations duales pour les groupes de tresses de type
     affine A", Comment. Math. Helv. 81 (2006) 23--47
-
   - [Shi] The Kazhdan-Lusztig cells in certain affine Weyl groups 
     Springer LNM 1179 (1986) 
-
-©  2007 François Digne for the  mathematics, François Digne and Jean Michel
+©François Digne (2007) for the  mathematics, François Digne and Jean Michel
 for the code.
 
 ### Installing
-
-To install this package, at the Julia command line:
-
-  *  enter package mode with ]
-  *  do the command
+To install this package, start Julia, enter package mode with ], and then do
 ```
-(@v1.7) pkg> add "https://github.com/jmichel7/AffineA.jl"
+(@v1.12) pkg> add https://github.com/jmichel7/AffineA.jl
 ```
-- exit package mode with backspace and then do
+exit package mode with backspace and then do
 ```
 julia> using Chevie, AffineA
 ```
 and you are set up.
 
 To update later to the latest version, do
-
 ```
-(@v1.7) pkg> update AffineA
+(@v1.12) pkg> update AffineA
 ```
 An example:
 ```julia-repl
@@ -441,13 +429,13 @@ end
 Garside.IntervalStyle(M::AffaDualBraidMonoid)=Garside.Interval()
 
 """
-`DualBraidMonoid(W)`
+`DualBraidMonoid(W::Atilde)`
 
 If `W=coxeter_PPerm_group(n)`, constructs the dual braid monoid for `Ãₙ₋₁`
 and the Coxeter element `c=PPerm([1-n;3:n;2+n])`. If
 `M=DualBraidMonoid(W)`,  used as a  function, `M(w)` returns  an element of
-the dual braid monoid if `w` belongs to the interval `[1,c]`, and `nothing`
-otherwise.
+the  dual  braid  monoid  if  `w∈W`  belongs  to  the interval `[1,c]`, and
+`nothing` otherwise.
 ```julia-repl
 julia> W=coxPPerm(3);l=elements(W,3)
 9-element Vector{PPerm}:
@@ -486,8 +474,8 @@ function Garside.DualBraidMonoid(W::Atilde;c=(n=ngens(W);PPerm([1-n;3:n;2+n];che
   M
 end
 
-Base.show(io::IO, M::AffaDualBraidMonoid)=print(io,"DualBraidMonoid(",M.W,",c=",
-                                                word(M.W,M.δ),")")
+Base.show(io::IO, M::AffaDualBraidMonoid)=print(io,"DualBraidMonoid(",M.W,
+                                                ",c=",word(M.W,M.δ),")")
 
 function (M::AffaDualBraidMonoid)(r::PPerm)
   if reflength(r)+reflength(M.δ/r)==ngens(M.W) GarsideElt(M,[r]) end

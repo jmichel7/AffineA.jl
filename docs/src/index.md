@@ -1,7 +1,10 @@
-# AffineA
-```@index
-Pages=["index.md"]
+```@meta
+CurrentModule = AffineA
 ```
+# AffineA
+
+Documentation for [AffineA](https://github.com/jmichel7/AffineA.jl).
+
 ```@docs
 AffineA
 PPerm
