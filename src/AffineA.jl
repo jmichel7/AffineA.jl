@@ -287,7 +287,7 @@ end
 
 ##------------------------coxPPerm----------------------------
 ##The following formula is from [Shi] Lemma 4.2.2
-Base.length(w::PPerm)=sum(j->sum(i->abs(fld(j^w-i^w,length(w.d))),1:j-1),eachindex(w.d))
+Base.length(w::PPerm)=sum(j->sum(i->abs(fld(j^w-i^w,length(w.d))),1:j-1;init=0),eachindex(w.d))
 
 isrightdescent(w::PPerm,i)= i==length(w.d) ? w.d[i]>w.d[1]+length(w.d) : w.d[i]>w.d[1+i]
 
@@ -419,6 +419,15 @@ Base.length(W::Atilde,w)=length(w)
 CoxGroups.isleftdescent(W::Atilde,w,i)=isleftdescent(w,i)
 Perms.reflength(W::Atilde,w)=reflength(w)
 Base.isfinite(W::Atilde)=false
+
+function Chevie.PermRoot.cartan(W::Atilde)
+  r=ngens(W)
+  if r==2 return [2 -2;-2 2] end
+  res=cartan(:A,r)
+  res[1,end]=-1
+  res[end,1]=-1
+  res
+end
 
 @GapObj struct AffaDualBraidMonoid{T,TW}<:Garside.GarsideMonoid{T}
   δ::T
