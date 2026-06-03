@@ -332,8 +332,12 @@ function refword(W,w::PPerm)
   res
 end
 
-# this is unsufficient!!!
-isdualsimple(y::PPerm)=count(c->c[2]!=0,cycles(y)) in [0,2]
+#test if y divides δ 
+function isdualsimple(y::PPerm)
+  n=length(y.d)
+  delta=PPerm(vcat(1-n,3:n,n+2))
+  reflength(y)+reflength(delta/y)==n
+end
 
 # descent  sets are encoded as a pair: a list of atoms, and a list of atoms
 # (1,u)  representing all atoms (1,uᵢ). This uses lemma 2.20 of [Digne] and
