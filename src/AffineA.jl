@@ -433,6 +433,19 @@ function Chevie.PermRoot.cartan(W::Atilde)
   res
 end
 
+function PermRoot.reflrep(W::Atilde)
+  get!(W,:matgens)do
+    c=cartan(W)
+    map(axes(c,1))do i
+      r=one(c)
+      r[i,:]-=c[i,:]
+      r
+    end
+  end
+end
+
+PermRoot.reflrep(W::Atilde,w)=prod(reflrep(W)[word(W,w)];init=one(cartan(W)))
+
 @GapObj struct AffaDualBraidMonoid{T,TW}<:Garside.GarsideMonoid{T}
   δ::T
   stringδ::String
