@@ -436,15 +436,16 @@ end
 function PermRoot.reflrep(W::Atilde)
   get!(W,:matgens)do
     c=cartan(W)
-    map(axes(c,1))do i
+    map(axes(c,2))do i
       r=one(c)
-      r[i,:]-=c[i,:]
+      r[:,i]-=c[:,i]
       r
     end
   end
 end
 
 PermRoot.reflrep(W::Atilde,w)=prod(reflrep(W)[word(W,w)];init=one(cartan(W)))
+PermRoot.reflrep(W::Atilde,i::Integer)=reflrep(W)[i]
 
 @GapObj struct AffaDualBraidMonoid{T,TW}<:Garside.GarsideMonoid{T}
   δ::T
