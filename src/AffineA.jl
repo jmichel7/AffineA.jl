@@ -371,18 +371,17 @@ end
 `refls(W::Atilde,i::Integer)`
 
 returns  the `i`-th reflection of  `W`. Reflections `(a,bⱼ)` are enumerated
-by  lexicographical order of `(j,a,b-a)` with `j` nonnegative; however when
-`a>b`  this reflection  is printed  `(b,a₋ⱼ)`. `i`  can also be a `Vector`;
-then the corresponding list of reflections is returned.
+by  lexicographical order of `(j,b-a,a)` with `j` nonnegative; b-a varies from 1 to n-1, and a
+from 1 to n.
 """
 function PermRoot.refls(W::Atilde,i::Integer)
   n=ngens(W)
-  p,r=divrem(i-1,n*(n-1))
-  ecart,pos=divrem(r,n)
+  j,r=divrem(i-1,n*(n-1))
+  ecart,pos=divrem(r,n) #pos=a-1, ecart=b-a-1
   res=collect(1:n)
-  res[1+pos]=2+pos+ecart+p*n
-  u=mod1(res[1+pos],n)
-  res[u]=u-1-ecart-p*n
+  res[1+pos]=2+pos+ecart+j*n
+  b=mod1(res[1+pos],n)
+  res[b]=b-1-ecart-j*n
   PPerm(res;check=false)
 end
 
@@ -436,11 +435,7 @@ end
 function PermRoot.reflrep(W::Atilde)
   get!(W,:matgens)do
     c=cartan(W)
-    map(axes(c,2))do i
-      r=one(c)
-      r[:,i]-=c[:,i]
-      r
-    end
+    reflectionMatrix.(eachrow(one(c)),eachrow(c))
   end
 end
 
@@ -532,8 +527,6 @@ function CoxGroups.firstleftdescent(M::AffaDualBraidMonoid,w::PPerm)
   if !isempty(l2) return whichatom(first(l2)) end
 end
   
-Garside.δad(M::AffaDualBraidMonoid,x::PPerm,i::Integer)=iszero(i) ? x : x^(M.δ^i)
-
 function Garside.atom(M::AffaDualBraidMonoid,i::Integer)
   s=refls(M.W,i)
   if !isdualatom(s) error("$s=atom($i) is not a dual atom") end
