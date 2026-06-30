@@ -343,15 +343,16 @@ function refword(W,w::PPerm)
   res
 end
 
-#test if y divides δ 
-function isdualsimple(M::AffaDualBraidMonoid,y::PPerm)
-  reflength(y)+reflength(M.δ/y)==period(y)
-end
 
 @GapObj struct AffaDualBraidMonoid{T,TW}<:Garside.GarsideMonoid{T}
   δ::T
   stringδ::String
   W::TW
+end
+
+#test if y divides δ 
+function isdualsimple(M::AffaDualBraidMonoid,y::PPerm)
+  reflength(y)+reflength(M.δ/y)==period(y)
 end
 
 # descent  sets are encoded as a pair: a list of atoms, and a list of atoms
