@@ -4,7 +4,7 @@ This package implements:
   - the  function  [`coxeter_PPerm_group`](@ref)`(n)`  (or `coxPPerm(n)`), the
     Coxeter group of type `Ãₙ₋₁`, as a group of `PPerm`s of period `n`.
   - the function [`coxeter_sym_PPerm_group`](@ref)`(n)` (or `coxsymPPerm(n)`), the 
-    Coxeter group of type `C̃_{n/2}` as a subgroup of `coxPPerm(n)`.
+    Coxeter group of type `C̃_n` as a subgroup of `coxPPerm(2n)`.
   - the function [`DualBraidMonoid`](@ref) for such groups.
  It is based on the papers
   - [Digne] "Presentations duales pour les groupes de tresses de type
@@ -53,7 +53,7 @@ julia> print(l[6]) # the images of 1:3 by the 6th element
 PPerm(Int16[-1, 1, 6])
 ```
 ```julia-repl
-julia> mod1.([-1, 1, 6],3) # the image in 𝔖₃
+julia> mod1.([-1, 1, 6],3) # the image in 𝔖₃ of l[6]
 3-element Vector{Int64}:
  2
  1
@@ -61,24 +61,90 @@ julia> mod1.([-1, 1, 6],3) # the image in 𝔖₃
 
 julia> l[6] # printed as product of cycles with shifts -1 and 1 (sum 0). 2₋₁ is 2-3
 PPerm(3): (1,2₋₁)₋₁(3)₁
+```
+other functions on PPerm are `*,/,\\,^,inv,==,copy,hash,isone,cycles,reflength`.
+See the help for the last two functions and for `PPerm`.
 
+The group `W` has the expected methods:
+```julia-repl
+julia> diagram(W)
+       3
+      / \
+Ã₂   1———2
+
+
+julia> cartan(W)
+3×3 Matrix{Int64}:
+  2  -1  -1
+ -1   2  -1
+ -1  -1   2
+
+julia> reflrep(W)
+3-element Vector{Matrix{Int64}}:
+ [-1 0 0; 1 1 0; 1 0 1]
+ [1 1 0; 0 -1 0; 0 1 1]
+ [1 0 1; 0 1 1; 0 0 -1]
+
+julia> refls(W,1:5) # the first 5 of the infinitely many reflections of W; see the help
+5-element Vector{PPerm}:
+ (1,2)
+ (2,3)
+ (1,3₋₁)
+ (1,3)
+ (1,2₋₁)
+
+julia> B=BraidMonoid(W) # the Artin braid monid, a locally Garside monoid
+BraidMonoid(coxeter_PPerm_group(3))
+
+julia> B(1,2,3)^6
+123123123123123123
+```
+The dual braid monoid is also implemented
+```julia-repl
 julia> B=DualBraidMonoid(W) # The Coxeter element is W(1,2,3)
 DualBraidMonoid(coxeter_PPerm_group(3),c=[1, 2, 3])
 
 julia> b=prod(B.(refls(W,1:7))) # the product in B of 7 dual atoms
 c.4.5.46
+
+julia> repr(b)
+"B(2,4,3,4,5,4,6)"
+
+julia> leftdescents(B,B.δ) # the infinitely many left descents are encoded (see help)
+2-element Vector{Vector{PPerm}}:
+ [(2,3), (2,3₋₁)]
+ [(1,2), (1,3)]
+
+
+julia> B(3,-1,2) # one can work in the group
+(1)⁻¹6.2
 ```
-```julia-rep1
-julia> print(b)
-B(2,4,3,4,5,4,6)
-```
+
+Let `σ` be the automorphism of `W` which reverses the `n-1`first generators
 ```julia-repl
-julia> refls(W,2:5) # the corresponding reflections
-4-element Vector{PPerm}:
+julia> σ.(gens(W))
+3-element Vector{PPerm}:
  (2,3)
+ (1,2)
  (1,3₋₁)
- (1,3)
- (1,2₋₁)
+```
+The group of `σ` fixed points in `coxPPerm(2n)` is isomorphic to `C̃ₙ`.
+```julia-repl
+julia> W1=coxsymPPerm(6)
+coxeter_sym_PPerm_group(6)
+
+julia> diagram(W1)
+C̃₃ 1 > 2 - 3 < 4
+
+julia> gens(W1)
+4-element Vector{PPerm}:
+ (1,6₋₁)
+ (1,2)(5,6)
+ (2,3)(4,5)
+ (3,4)
+
+julia> DualBraidMonoid(W1) # and it has also a dual braid monoid
+DualBraidMonoid(coxeter_sym_PPerm_group(6),c=[1, 3, 2, 4])
 ```
 """
 module AffineA
@@ -205,7 +271,7 @@ function Base.inv(x::PPerm)
 end
 
 function Base.:^(i::Int,p::PPerm)
-  y=1+mod(i-1,period(p))
+  y=mod1(i,period(p))
   i+p.d[y]-y
 end
 
@@ -252,8 +318,8 @@ function Perms.cycles(a::PPerm;trivial=false)
       x+=a.d[xn]-xn
       if mod(x-cyc[1],n)==0 break end
     end
-    pp=cyc=>div(x-cyc[1],n)
-    if trivial || length(cyc)>1 || pp[2]!=0 push!(res,pp) end
+    shift=div(x-cyc[1],n)
+    if trivial || length(cyc)>1 || shift!=0 push!(res,cyc=>shift) end
   end
   res
 end    
@@ -297,33 +363,30 @@ function Base.show(io::IO,a::PPerm)
 end
 
 ##------------------------coxPPerm----------------------------
-##The following formula is from [Shi] Lemma 4.2.2
-Base.length(w::PPerm)=sum(j->sum(i->abs(fld(j^w-i^w,period(w))),1:j-1;init=0),eachindex(w.d))
+"""
+`reflection_length(w::PPerm)` of `reflength`
 
-CoxGroups.isrightdescent(w::PPerm,i)= i==period(w) ? w.d[i]>w.d[1]+period(w) : w.d[i]>w.d[1+i]
-
-CoxGroups.isleftdescent(w::PPerm,i)=isrightdescent(w^-1,i)
-
-# for this function see [Digne],2.8
-function Perms.reflength(w::PPerm)
+returns the minimum number of transpositions of which `w` is a product.
+see [2.8, Digne].
+"""
+function Perms.reflection_length(w::PPerm)
   n=period(w)
-  function v(pp,i)
-    pp=map(x->sum.(getindex.(Ref(pp),x)),partitions(eachindex(pp),i))
-    if pp[1][1]<0 pp=-pp end
-    return tally.(pp)
-  end
   d=last.(cycles(w))
   p0=count(iszero,d)
-  res=n+length(d)-2*p0-count(i->i==i^w,1:n)
+  res=n+length(d)-2*p0-count(i->i==w.d[i],1:n)
   if p0==length(d) return res end
   pos=filter(>(0),d)
   neg=filter(<(0),d)
-  m=min(length(pos),length(neg))
-  r=m:-1:1
-  res-2*r[findfirst(i->length(intersect(v(pos,i),v(neg,i)))>0,r)]
+  function v(pp,i)
+    pp=map(x->sum.(x),partitions(pp,i))
+    if pp[1][1]<0 pp=-pp end
+    tally.(pp)
+  end
+  r=min(length(pos),length(neg)):-1:1
+  res-2*r[findfirst(i->!isempty(intersect(v(pos,i),v(neg,i))),r)]
 end
 
-function firstdescendingreflection(W,w) local s
+function firstdescendingreflection(W,w)
   i=1
   l=reflength(w)
   while true
@@ -343,8 +406,44 @@ function refword(W,w::PPerm)
   res
 end
 
+#--------------- common code of AffaDualBraidMonoid and AffcDualBraidMonoid
+abstract type AffDualBraidMonoid{T,TW}<:Garside.GarsideMonoid{T} end
 
-@GapObj struct AffaDualBraidMonoid{T,TW}<:Garside.GarsideMonoid{T}
+Garside.IntervalStyle(M::AffDualBraidMonoid)=Garside.Interval()
+
+Base.show(io::IO, M::AffDualBraidMonoid)=print(io,"DualBraidMonoid(",M.W,
+                                                ",c=",word(M.W,M.δ),")")
+
+function CoxGroups.firstleftdescent(M::AffDualBraidMonoid,w::PPerm)
+  l1,l2=leftdescents(M,w)
+  if !isempty(l1) return whichrefl(M.W,first(l1)) end
+  if !isempty(l2) return whichrefl(M.W,first(l2)) end
+end
+  
+function Garside.leftgcdc(M::AffDualBraidMonoid,a::PPerm,b::PPerm)
+  x=one(M)
+  while true
+    t=firstintersectionleftdescents(leftdescents(M,a),leftdescents(M,b))
+    if isnothing(t) return x,(a,b) end
+    x*=t
+    a=t\a
+    b=t\b
+  end
+end
+
+function (M::AffDualBraidMonoid)(r::PPerm)
+  if isdualsimple(M,r) GarsideElt(M,[r]) end
+end
+
+# a,b are results of leftdescents. This is valid in types Atilde  and Ctilde
+function firstintersectionleftdescents(a,b)
+  for t in a[1] if t in b[1] || perm(t) in map(x->x.d,b[2]) return t end end
+  for t in b[1] if perm(t) in map(x->x.d,a[2]) return t end end
+  for t in a[2] if t in b[2] return t end end
+end
+
+#--------------- AffaDualBraidMonoid ---------------------------------------
+@GapObj struct AffaDualBraidMonoid{T,TW}<:AffDualBraidMonoid{T,TW}
   δ::T
   stringδ::String
   W::TW
@@ -352,12 +451,16 @@ end
 
 #test if y divides δ 
 function isdualsimple(M::AffaDualBraidMonoid,y::PPerm)
-  reflength(y)+reflength(M.δ/y)==period(y)
+ period(y)==period(M.δ) && reflength(y)+reflength(M.δ/y)==period(y)
 end
 
-# descent  sets are encoded as a pair: a list of atoms, and a list of atoms
-# (1,u)  representing all atoms (1,uᵢ). This uses lemma 2.20 of [Digne] and
-# is valid only if a is a dual simple.
+"""
+`leftdescents(M::AffaDualBraidMonoid,a::PPerm)`
+
+descent  sets are encoded as a pair: a list of atoms, and a list of atoms
+`(1,u)`  representing all atoms `(1,uᵢ)`. This uses lemma 2.20 of [Digne] and
+is valid only if a is a dual simple.
+"""
 function CoxGroups.leftdescents(M::AffaDualBraidMonoid,a::PPerm)
   n=period(a)
   if !isdualsimple(M,a) error(a," is not a dual simple") end
@@ -384,11 +487,14 @@ Perms.cycletype(a::PPerm)=sort(map(cyc->length(cyc[1])=>cyc[2],cycles(a)))
 end
 
 """
-`refls(W::Atilde,i::Integer)`
+`refls(W::Atilde,i)`
 
-returns  the `i`-th reflection of  `W`. Let `n=ngens(W)`. Reflections `(a,bⱼ)` are enumerated
-by  lexicographical order of `(j,b-a,a)` with `j` nonnegative; `b-a` varies from `1` to `n-1`,
-and `a` from `1` to `n`.
+returns  the  `i`-th  reflection  of  `W`.  Let  `n=ngens(W)`.  Reflections
+`(a,bⱼ)`  are enumerated by  lexicographical order of  `(j,b-a,a)` with `j`
+nonnegative; `b-a` varies from `1` to `n-1`, and `a` from `1` to `n`.
+
+`i` can also be a vector of integers, the corresponding list of reflections
+is then returned.
 """
 function PermRoot.refls(W::Atilde,i::Integer)
   n=ngens(W)
@@ -430,12 +536,20 @@ const coxPPerm=coxeter_PPerm_group
 
 PermRoot.refltype(W::Atilde)=get!(W,:refltype)do
   n=ngens(W)
-  [TypeIrred(Dict(:series=>Symbol("Ã"),:indices=>1:n,:rank=>n-1))]
+  [TypeIrred(;series=Symbol("Ã"),indices=1:n,rank=n-1)]
 end
 
 Base.one(W::Atilde)=one(first(gens(W)))
-Base.length(W::Atilde,w)=length(w)
-CoxGroups.isleftdescent(W::Atilde,w,i)=isleftdescent(w,i)
+
+#The following formula is from [Shi] Lemma 4.2.2
+Base.length(W::Atilde,w::PPerm)=
+  sum(j->sum(i->abs(fld(j^w-i^w,period(w))),1:j-1;init=0),eachindex(w.d))
+
+CoxGroups.isrightdescent(W::Atilde,w::PPerm,i)=
+  i==period(w) ? w.d[i]>w.d[1]+period(w) : w.d[i]>w.d[1+i]
+
+CoxGroups.isleftdescent(W::Atilde,w::PPerm,i)=isrightdescent(W,w^-1,i)
+
 Perms.reflength(W::Atilde,w)=reflength(w)
 Base.isfinite(W::Atilde)=false
 
@@ -457,8 +571,6 @@ end
 
 PermRoot.reflrep(W::Atilde,w)=prod(reflrep(W)[word(W,w)];init=one(cartan(W)))
 PermRoot.reflrep(W::Atilde,i::Integer)=reflrep(W)[i]
-
-Garside.IntervalStyle(M::AffaDualBraidMonoid)=Garside.Interval()
 
 """
 `DualBraidMonoid(W::Atilde)`
@@ -506,37 +618,6 @@ function Garside.DualBraidMonoid(W::Atilde;c=(n=ngens(W);PPerm([1-n;3:n;2+n];che
   M
 end
 
-Base.show(io::IO, M::AffaDualBraidMonoid)=print(io,"DualBraidMonoid(",M.W,
-                                                ",c=",word(M.W,M.δ),")")
-
-function (M::AffaDualBraidMonoid)(r::PPerm)
-  if reflength(r)+reflength(M.δ/r)==ngens(M.W) GarsideElt(M,[r]) end
-end
-
-# a,b are results of leftdescents. The function is valid in types Atilde  and Ctilde
-function firstintersectionleftdescents(a,b)
-  for t in a[1] if t in b[1] || perm(t) in map(x->x.d,b[2]) return t end end
-  for t in b[1] if perm(t) in map(x->x.d,a[2]) return t end end
-  for t in a[2] if t in b[2] return t end end
-end
-
-function Garside.leftgcdc(M::AffaDualBraidMonoid,a::PPerm,b::PPerm)
-  x=one(M)
-  while true
-    t=firstintersectionleftdescents(leftdescents(M,a),leftdescents(M,b))
-    if isnothing(t) return x,(a,b) end
-    x*=t
-    a=t\a
-    b=t\b
-  end
-end
-
-function CoxGroups.firstleftdescent(M::AffaDualBraidMonoid,w::PPerm)
-  l1,l2=leftdescents(M,w)
-  if !isempty(l1) return whichrefl(M.W,first(l1)) end
-  if !isempty(l2) return whichrefl(M.W,first(l2)) end
-end
-  
 function Garside.atom(M::AffaDualBraidMonoid,i::Integer)
   s=refls(M.W,i)
   if !isdualatom(s) error("$s=atom($i) is not a dual atom") end

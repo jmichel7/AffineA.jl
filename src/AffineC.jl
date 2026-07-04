@@ -1,4 +1,5 @@
 export coxsymPPerm, coxeter_sym_PPerm_group, σ
+
 @GapObj struct Ctilde <: CoxeterGroup{PPerm}
   gens::Vector{PPerm}
 end
@@ -6,10 +7,11 @@ end
 """
 `coxeter_sym_PPerm_group(n::Integer)`
 
-Returns the affine Coxeter group of type ``\\tilde C_{n/2}`` as the group of fixed
-points under an automorphism `σ` in the affine Coxeter group of type `Ãₙ₋₁` itself
-represented as a group of periodic permutations of period `n`.
-The automorphism `σ` fixes the `n`-th generator and otherwise swaps the `i`-th and `n-i`-th generator.
+Returns  the affine Coxeter group of  type ``\\tilde C_{n/2}`` as the group
+of  fixed points under an  automorphism `σ` in the  affine Coxeter group of
+type  `Ãₙ₋₁` itself  represented as  a group  of periodic  permutations of
+period  `n`. The automorphism `σ` fixes  the `n`-th generator and otherwise
+swaps the `i`-th and `n-i`-th generator.
 """
 function coxeter_sym_PPerm_group(n::Integer)
   if n<4 || isodd(n) error(n," should be even >=4") end
@@ -23,7 +25,7 @@ const coxsymPPerm=coxeter_sym_PPerm_group
 
 PermRoot.refltype(W::Ctilde)=get!(W,:refltype)do
   n=ngens(W)
-  [TypeIrred(Dict(:series=>Symbol("B̃"),:cartanType=>1,:indices=>1:n,:rank=>n-1))]
+  [TypeIrred(;series=Symbol("B̃"),cartanType=1,indices=1:n,rank=n-1)]
 end
 
 function Chevie.PermRoot.cartan(W::Ctilde)
@@ -62,17 +64,14 @@ function σ(w::PPerm)
 PPerm(res)
 end
 
-@GapObj struct AffcDualBraidMonoid{T,TW}<:Garside.GarsideMonoid{T}
+@GapObj struct AffcDualBraidMonoid{T,TW}<:AffDualBraidMonoid{T,TW}
   δ::T
   stringδ::String
   W::TW
 end
 
-Garside.IntervalStyle(M::AffcDualBraidMonoid)=Garside.Interval()
-
-function
-Garside.DualBraidMonoid(W::Ctilde;c=(n=ngens(W)-1;PPerm(2n,Tuple(1:2:2n-1)=>1,Tuple(2n:-2:2)=>-1;check=false)),
-  revMonoid=nothing)
+function Garside.DualBraidMonoid(W::Ctilde;c=(n=ngens(W)-1;
+ PPerm(2n,Tuple(1:2:2n-1)=>1,Tuple(2n:-2:2)=>-1;check=false)),revMonoid=nothing)
 # If revMonoid is given, constructs the reversed monoid
 # which allows to fill the field M.revMonoid after building the dual monoid
   M=AffcDualBraidMonoid(c,"c",W,Dict{Symbol,Any}())
@@ -83,35 +82,19 @@ Garside.DualBraidMonoid(W::Ctilde;c=(n=ngens(W)-1;PPerm(2n,Tuple(1:2:2n-1)=>1,Tu
   M
 end
 
-Base.show(io::IO, M::AffcDualBraidMonoid)=print(io,"DualBraidMonoid(",M.W,
-                                                ",c=",word(M.W,M.δ),")")
-
-function (M::AffcDualBraidMonoid)(r::PPerm)
-  if reflength(r)+reflength(M.δ/r)==2ngens(M.W)-2 GarsideElt(M,[r]) end
-end
-
-function Garside.leftgcdc(M::AffcDualBraidMonoid,a::PPerm,b::PPerm)
-  x=one(M)
-  while true
-    t=firstintersectionleftdescents(leftdescents(M,a),leftdescents(M,b))
-    if isnothing(t) return x,(a,b) end
-    x*=t
-    a=t\a
-    b=t\b
-  end
-end
-
 """
-`refls(W::Ctilde,i::Integer)`
+`refls(W::Ctilde,i)`
 
-In `C̃ₙ` the reflections are `(a,b=>j)*σ((a,b=>j))`  if `a+b != 2n+1` and `(a,b=>j)` otherwise.
-We obtain all reflections for `a` in `1:n` and `a< b≤ n+1-a` and `j>=0` if
-for each `a,b` as above and `j>=0` we consider `(a,b=>j)` and `(a,b=>-j-1)` (there are
-`2n²` reflections for each `j≥0`).
-For each `j≥d` in 2 lexicographically ordered blocks (on `(a, b-a)`):
-first the `(a,b=>j)`, then the `(a,b=>-j)`
-for each `a`, `b-a` varies from `1` to `2(n-a)+1`: the number of ̀b̀ for ̀1≤ n-a ≤ x` is thus
-`2(x+1)²`. 
+In  `C̃ₙ`  the  reflections  are  `(a,b=>j)*σ((a,b=>j))` if `a+b!=2n+1` and
+`(a,b=>j)`  otherwise.  We  obtain  all  reflections  for  `a` in `1:n` and
+`a<b≤n+1-a`  and `j>=0` if for  each `a,b` as above  and `j>=0` we consider
+`(a,b=>j)`  and `(a,b=>-j-1)` (there are `2n²` reflections for each `j≥0`).
+For  each `j≥d` in 2 lexicographically ordered blocks (on `(a,b-a)`): first
+the `(a,b=>j)`, then the `(a,b=>-j)` for each `a`, `b-a` varies from `1` to
+`2(n-a)+1`: the number of `b̀` for `1≤n-a≤x` is thus `2(x+1)²`.
+
+`i` can also be a vector of integers, the corresponding list of reflections
+is then returned.
 """
 function PermRoot.refls(W::Ctilde,i::Integer)
   n=ngens(W)-1
@@ -191,12 +174,6 @@ function CoxGroups.leftdescents(M::AffcDualBraidMonoid,a::PPerm)
   [unique(res[1]),unique(res[2])]
 end
 
-function CoxGroups.firstleftdescent(M::AffcDualBraidMonoid,w::PPerm)
-  l1,l2=leftdescents(M,w)
-  if !isempty(l1) return whichrefl(M.W,first(l1)) end
-  if !isempty(l2) return whichrefl(M.W,first(l2)) end
-end
-
 function Garside.atom(M::AffcDualBraidMonoid,i::Integer)
   s=refls(M.W,i)
   # if a reflection is simple it is an atom
@@ -219,5 +196,3 @@ function T(w::PPerm)
   end
   return PPerm(x)
 end
-
-
