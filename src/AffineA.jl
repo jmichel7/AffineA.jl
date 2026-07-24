@@ -7,11 +7,11 @@ This package implements:
     Coxeter group of type `C̃_n` as a subgroup of `coxPPerm(2n)`.
   - the function [`DualBraidMonoid`](@ref) for such groups.
  It is based on the papers
-  - [Digne] "Presentations duales pour les groupes de tresses de type
-    affine A", Comment. Math. Helv. 81 (2006) 23--47
-  - [Digne2] "A Garside presentation for Artin-Tits groups of type C̃n
+  - [Digne] Presentations duales pour les groupes de tresses de type
+    affine A, Comment. Math. Helv. 81 (2006) 23--47
+  - [Digne2] A Garside presentation for Artin-Tits groups of type `C̃ₙ`,
     Ann. Inst. Fourier 62 (2012) 641--666 
-  - [Shi] The Kazhdan-Lusztig cells in certain affine Weyl groups 
+  - [Shi] The Kazhdan-Lusztig cells in certain affine Weyl groups,
     Springer LNM 1179 (1986) 
 ©François Digne (2007) for the  mathematics, François Digne and Jean Michel
 for the code.
@@ -373,17 +373,16 @@ function Perms.reflection_length(w::PPerm)
   n=period(w)
   d=last.(cycles(w))
   p0=count(iszero,d)
-  res=n+length(d)-2*p0-count(i->i==w.d[i],1:n)
+  res=n-count(i->i==w.d[i],1:n)+length(d)-2*p0
   if p0==length(d) return res end
   pos=filter(>(0),d)
-  neg=filter(<(0),d)
-  function v(pp,i)
-    pp=map(x->sum.(x),partitions(pp,i))
-    if pp[1][1]<0 pp=-pp end
-    tally.(pp)
+  neg=-filter(<(0),d)
+  v(pp,i)=tally.(map(x->sum.(x),partitions(pp,i)))
+  for r in min(length(pos),length(neg)):-1:1
+    if !isempty(intersect(v(pos,r),v(neg,r)))
+      return res-2*r
+    end
   end
-  r=min(length(pos),length(neg)):-1:1
-  res-2*r[findfirst(i->!isempty(intersect(v(pos,i),v(neg,i))),r)]
 end
 
 function firstdescendingreflection(W,w)
@@ -451,7 +450,7 @@ end
 
 #test if y divides δ 
 function isdualsimple(M::AffaDualBraidMonoid,y::PPerm)
- period(y)==period(M.δ) && reflength(y)+reflength(M.δ/y)==period(y)
+  period(y)==period(M.δ) && reflength(y)+reflength(M.δ/y)==period(y)
 end
 
 """
@@ -507,7 +506,12 @@ function PermRoot.refls(W::Atilde,i::Integer)
   PPerm(res;check=false)
 end
 
-# finds i such that pp=refls(W,i). It is assumed that pp is a reflection.
+"""
+`whichrefl(W::Union{Atilde,Ctilde},pp::PPerm)`
+
+returns  `i`  such  that  `pp==refls(W,i)`.  It  is  assumed that `pp` is a
+reflection.
+"""
 function whichrefl(W::Atilde,pp::PPerm)
   n=period(pp)
   pos=findfirst(i->pp.d[i]!=i,1:n)-1

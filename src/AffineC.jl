@@ -113,7 +113,6 @@ function PermRoot.refls(W::Ctilde,i::Integer)
   w==σ(w) ? w : w*σ(w)
 end
 
-# finds i such that pp=refls(W,i). It is assumed that pp=(a,b=>j)is a reflection.
 function whichrefl(W::Ctilde,pp::PPerm)
   n=period(pp)
   a=findfirst(i->pp.d[i]!=i,1:n)
@@ -133,7 +132,7 @@ function whichrefl(W::Ctilde,pp::PPerm)
 end
 
 function isdualsimple(M::AffcDualBraidMonoid,y::PPerm)
-  if y!=σ(y) error(y, " is not in ", M.W) end
+  if period(y)!=period(M.δ) || y!=σ(y) error(y," is not in ",M.W) end
   reflength(y)+reflength(M.δ/y)==period(y)
 end
 
@@ -181,8 +180,10 @@ function Garside.atom(M::AffcDualBraidMonoid,i::Integer)
   s
 end
 
-#"translation": on augmente de 1 les images paires des entiers impairs
-# T^2 est la conjugaison par δ^n dans coxeter_sym_PPerm_group(n)
+"""
+`T(w::PPerm)` translation: increase by 1 the even images of odd integers
+`T^2` is conjugating by `δ^n` in `coxeter_sym_PPerm_group(n)`
+"""
 function T(w::PPerm)
   v=w.d
   x=copy(v)
