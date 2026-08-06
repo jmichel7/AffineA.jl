@@ -264,7 +264,6 @@ function Base.:*(x::PPerm,y::PPerm)
 end
 
 function Base.inv(x::PPerm)
-  n=period(x)
   l=perm(x)
   ll=invperm(l)
   PPerm(ll.-@view (x.d.-l)[ll];check=false)
@@ -283,7 +282,7 @@ Base.:\(a::PPerm,b::PPerm)=inv(a)*b
 
 Base.:(==)(a::PPerm,b::PPerm)=a.d==b.d
 function Base.hash(a::PPerm, h::UInt)
-  for (i,v) in pairs(a.d)
+  for (_,v) in pairs(a.d)
     h=hash(v,h)
   end
   h
@@ -408,7 +407,7 @@ end
 #--------------- common code of AffaDualBraidMonoid and AffcDualBraidMonoid
 abstract type AffDualBraidMonoid{T,TW}<:Garside.GarsideMonoid{T} end
 
-Garside.IntervalStyle(M::AffDualBraidMonoid)=Garside.Interval()
+Garside.IntervalStyle(::AffDualBraidMonoid)=Garside.Interval()
 
 Base.show(io::IO, M::AffDualBraidMonoid)=print(io,"DualBraidMonoid(",M.W,
                                                 ",c=",word(M.W,M.δ),")")
@@ -512,7 +511,7 @@ end
 returns  `i`  such  that  `pp==refls(W,i)`.  It  is  assumed that `pp` is a
 reflection.
 """
-function whichrefl(W::Atilde,pp::PPerm)
+function whichrefl(::Atilde,pp::PPerm)
   n=period(pp)
   pos=findfirst(i->pp.d[i]!=i,1:n)-1
   v=pp.d[pos+1]
@@ -546,16 +545,16 @@ end
 Base.one(W::Atilde)=one(first(gens(W)))
 
 #The following formula is from [Shi] Lemma 4.2.2
-Base.length(W::Atilde,w::PPerm)=
+Base.length(::Atilde,w::PPerm)=
   sum(j->sum(i->abs(fld(j^w-i^w,period(w))),1:j-1;init=0),eachindex(w.d))
 
-CoxGroups.isrightdescent(W::Atilde,w::PPerm,i)=
+CoxGroups.isrightdescent(::Atilde,w::PPerm,i)=
   i==period(w) ? w.d[i]>w.d[1]+period(w) : w.d[i]>w.d[1+i]
 
 CoxGroups.isleftdescent(W::Atilde,w::PPerm,i)=isrightdescent(W,w^-1,i)
 
-Perms.reflength(W::Atilde,w)=reflength(w)
-Base.isfinite(W::Atilde)=false
+Perms.reflength(::Atilde,w)=reflength(w)
+Base.isfinite(::Atilde)=false
 
 function Chevie.PermRoot.cartan(W::Atilde)
   r=ngens(W)
@@ -629,8 +628,8 @@ function Garside.atom(M::AffaDualBraidMonoid,i::Integer)
 end
 
 function isdualatom(a::PPerm)
-  n=period(a)
   if count(x->x[1]!=x[2],pairs(a.d))!=2 return false end
+  n=period(a)
   i=findfirst(i->i!=a.d[i],1:n)
   i==1 || abs(i-a.d[i])<n
 end

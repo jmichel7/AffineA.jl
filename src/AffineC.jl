@@ -47,11 +47,11 @@ PermRoot.reflrep(W::Ctilde,w)=prod(reflrep(W)[word(W,w)];init=one(cartan(W)))
 PermRoot.reflrep(W::Ctilde,i::Integer)=reflrep(W)[i]
 
 Base.one(W::Ctilde)=one(first(gens(W)))
-Base.isfinite(W::Ctilde)=false
+Base.isfinite(::Ctilde)=false
 
 Base.show(io::IO,G::Ctilde)=print(io,"coxeter_sym_PPerm_group(",2ngens(G)-2,")")
 
-CoxGroups.isrightdescent(W::Ctilde,w::PPerm,i)= i==1 ? w.d[end]>w.d[1]+period(w) : w.d[i-1]>w.d[i]
+CoxGroups.isrightdescent(::Ctilde,w::PPerm,i)= i==1 ? w.d[end]>w.d[1]+period(w) : w.d[i-1]>w.d[i]
 
 CoxGroups.isleftdescent(W::Ctilde,w::PPerm,i)=isrightdescent(W,w^-1,i)
 
@@ -113,7 +113,7 @@ function PermRoot.refls(W::Ctilde,i::Integer)
   w==σ(w) ? w : w*σ(w)
 end
 
-function whichrefl(W::Ctilde,pp::PPerm)
+function whichrefl(::Ctilde,pp::PPerm)
   n=period(pp)
   a=findfirst(i->pp.d[i]!=i,1:n)
   m=div(n,2)
