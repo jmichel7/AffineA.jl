@@ -323,6 +323,27 @@ function Perms.cycles(a::PPerm;trivial=false)
   res
 end    
 
+# same as last.(cycles(w;trivial=true)) but faster
+function shifts(a::PPerm)
+  n=period(a)
+  res=Int[]
+  l=trues(n)
+  while true
+    x=findfirst(l)
+    if isnothing(x) break end
+    cyc=x
+    while true
+      xn=mod1(x,n)
+      l[xn]=false
+      x+=a.d[xn]-xn
+      if mod(x-cyc,n)==0 break end
+    end
+    shift=div(x-cyc,n)
+    push!(res,shift)
+  end
+  res
+end    
+
 function Base.show(io::IO, ::MIME"text/plain", a::PPerm)
   if !haskey(io,:typeinfo) print(io,"PPerm(",period(a),"): ") end
   show(io,a)
@@ -363,23 +384,24 @@ end
 
 ##------------------------coxPPerm----------------------------
 """
-`reflection_length(w::PPerm)` of `reflength`
+`reflection_length(w::PPerm)` or `reflength`
 
 returns the minimum number of transpositions of which `w` is a product.
 see [2.8, Digne].
 """
 function Perms.reflection_length(w::PPerm)
   n=period(w)
-  d=last.(cycles(w))
+  d=shifts(w)
   p0=count(iszero,d)
-  res=n-count(i->i==w.d[i],1:n)+length(d)-2*p0
+  res=n+length(d)-2*p0
   if p0==length(d) return res end
+  # we now compute κ(w)-p0
   pos=filter(>(0),d)
   neg=-filter(<(0),d)
-  v(pp,i)=tally.(map(x->sum.(x),partitions(pp,i)))
-  for r in min(length(pos),length(neg)):-1:1
-    if !isempty(intersect(v(pos,r),v(neg,r)))
-      return res-2*r
+  v(pp,k)=sort!.(map(x->sum.(x),partitions(pp,k)))
+  for k in min(length(pos),length(neg)):-1:1
+    if !isempty(intersect(v(pos,k),v(neg,k)))
+      return res-2*k
     end
   end
 end
