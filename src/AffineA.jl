@@ -38,28 +38,28 @@ coxeter_PPerm_group(3)
 
 julia> l=elements(W,3) # elements of Coxeter length 3
 9-element Vector{PPerm}:
- (2,3₋₁)
- (1,2)₁(3)₋₁
- (1)₋₁(2,3)₁
  (1,3)
- (1,3)₁(2)₋₁
- (1,2₋₁)₋₁(3)₁
  (1)₁(2,3₋₁)₋₁
+ (2,3₋₁)
+ (1,3)₁(2)₋₁
+ (1,2)₁(3)₋₁
  (1,3₋₁)₋₁(2)₁
  (1,2₋₁)
+ (1,2₋₁)₋₁(3)₁
+ (1)₋₁(2,3)₁
 ```
 ```julia-rep1
-julia> print(l[6]) # the images of 1:3 by the 6th element
+julia> print(l[8]) # the images of 1:3 by the 8th element
 PPerm(Int16[-1, 1, 6])
 ```
 ```julia-repl
-julia> mod1.([-1, 1, 6],3) # the image in 𝔖₃ of l[6]
+julia> mod1.([-1, 1, 6],3) # the image in 𝔖₃ of l[8]
 3-element Vector{Int64}:
  2
  1
  3
 
-julia> l[6] # printed as product of cycles with shifts -1 and 1 (sum 0). 2₋₁ is 2-3
+julia> l[8] # printed as product of cycles with shifts -1 and 1 (sum 0). 2₋₁ is 2-3
 PPerm(3): (1,2₋₁)₋₁(3)₁
 ```
 other functions on PPerm are `*,/,\\,^,inv,==,copy,hash,isone,cycles,reflength`.
@@ -262,6 +262,8 @@ function Base.:*(x::PPerm,y::PPerm)
   end
   PPerm(res;check=false)
 end
+
+Base.:isless(x::PPerm,y::PPerm)=x.d<y.d
 
 function Base.inv(x::PPerm)
   l=perm(x)
@@ -608,27 +610,27 @@ the  dual  braid  monoid  if  `w∈W`  belongs  to  the interval `[1,c]`, and
 ```julia-repl
 julia> W=coxPPerm(3);l=elements(W,3)
 9-element Vector{PPerm}:
- (2,3₋₁)
- (1,2)₁(3)₋₁
- (1)₋₁(2,3)₁
  (1,3)
- (1,3)₁(2)₋₁
- (1,2₋₁)₋₁(3)₁
  (1)₁(2,3₋₁)₋₁
+ (2,3₋₁)
+ (1,3)₁(2)₋₁
+ (1,2)₁(3)₋₁
  (1,3₋₁)₋₁(2)₁
  (1,2₋₁)
+ (1,2₋₁)₋₁(3)₁
+ (1)₋₁(2,3)₁
 
 julia> B=DualBraidMonoid(W);B.(l)
 9-element Vector{Union{Nothing, GarsideElt{PPerm, AffineA.AffaDualBraidMonoid{PPerm, AffineA.Atilde}}}}:
- 6
- nothing
- c
  4
  nothing
+ 6
  nothing
  nothing
  nothing
  5
+ nothing
+ c
 ```
 """
 function Garside.DualBraidMonoid(W::Atilde;c=(n=ngens(W);PPerm([1-n;3:n;2+n];check=false)),
