@@ -568,7 +568,12 @@ end
 
 Base.one(W::Atilde)=one(first(gens(W)))
 
-#The following formula is from [Shi] Lemma 4.2.2
+"""
+`length(::Atilde,w::PPerm)`
+
+computes  the length of a periodic permutation using the formula from [Shi]
+Lemma 4.2.2
+"""
 Base.length(::Atilde,w::PPerm)=
   sum(j->sum(i->abs(fld(j^w-i^w,period(w))),1:j-1;init=0),eachindex(w.d))
 
